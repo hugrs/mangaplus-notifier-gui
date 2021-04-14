@@ -1,0 +1,4 @@
+(library
+ (name proto)
+ (libraries ocaml-protoc core sexplib)
+ (preprocess (pps ppx_sexp_conv)))
