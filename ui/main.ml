@@ -7,7 +7,7 @@ let () =
   let _ = GtkThread.start () in
   let titles = Api.fetch_all ()
     |> Async.Deferred.map ~f:(fun ts ->
-      List.filter ts ~f:Proto.is_english  
+      List.filter ts ~f:Proto.Title.is_english
     ) in
   let window = Window.create ~titles () in
   window#show ();

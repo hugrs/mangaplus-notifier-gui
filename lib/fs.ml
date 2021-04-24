@@ -1,5 +1,23 @@
 open Core
 
+let global_root = "mgp"
+
+let dir_exists dir =
+  match Sys.is_directory dir with
+  | `Yes -> true
+  | `No | `Unknown -> false
+
+let create_if_not_exists path =
+  if not (dir_exists path) then Unix.mkdir_p path
+
+let path_from_root ?(create_dir=false) file =
+  let path = Filename.concat global_root file in
+  if create_dir then create_if_not_exists path;
+  path
+
+let () = create_if_not_exists global_root
+
+
 let write_all_bytes file ~data =
   Out_channel.with_file ~binary:true file ~f:(fun outfile ->
     Out_channel.output_bytes outfile data

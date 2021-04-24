@@ -30,8 +30,7 @@ module Row = struct
   type store_t = GTree.list_store
 
   let set_release_dates ~(store:store_t) row (detail_view: Proto.title_detail) =
-    let chapter = Option.value (List.last detail_view.last_chapter_list)
-      ~default:(List.last_exn detail_view.first_chapter_list) in
+    let chapter = Data.last_chapter detail_view in
     store#set ~row ~column:last_chapter chapter.name;
     store#set ~row ~column:last_date (Dateformat.epoch_to_human_string chapter.start_time_stamp);
     store#set ~row ~column:next_date (match detail_view.next_timestamp with
@@ -114,10 +113,11 @@ let update_selection t ~all_titles selection_ids =
 
 let refresh t (selection: Proto.title list) =
   Data.TitleFull.of_titles selection >>= fun titles ->
-  Notifier.update_outdated titles >>| fun updated ->
+  Updater.update_outdated titles >>= fun updated ->
   List.iter updated ~f:(fun (tf:Proto.title_full) ->
     (* we know the title is in the map because the grid selection must match the list *)
     let row = Hashtbl.find_exn t.table tf.title.title_id in
     Row.update ~store:t.store row tf.detail;
     Row.set ~store:t.store row.data bgcolor yellow
-  )
+  );
+  Notifier.notify (Data.make_notification_body updated) ()

@@ -1,0 +1,4 @@
+(library
+ (name notifier)
+ (libraries lwt obus obus.notification async)
+ (preprocess (pps lwt_ppx)))

@@ -2,7 +2,7 @@ open Core
 
 type selection = int list
 
-let selected_filename = "selected.conf"
+let selected_filename = Fs.path_from_root "selected.conf"
 
 let save_selected (titles: Proto.title list) () =
   let data = List.map titles ~f:(fun t -> Int.to_string t.title_id)

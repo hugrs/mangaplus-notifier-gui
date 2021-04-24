@@ -1,7 +1,7 @@
 open Core
 open Async
 
-let select_expired (titles: Proto.title_full list) =
+let select_has_release (titles: Proto.title_full list) =
   let has_passed timestamp = (
     let date, _ = Dateformat.date_of_epoch timestamp in
     let open Date.Replace_polymorphic_compare in
@@ -9,7 +9,7 @@ let select_expired (titles: Proto.title_full list) =
   ) in
   List.filter titles ~f:(fun tl -> has_passed tl.detail.next_timestamp)
 
-let force_fetch_details (titles: Proto.title_full list) =
+let map_fetch_detail (titles: Proto.title_full list) =
   List.map titles ~f:(fun tl -> 
     Api.fetch_detail ~use_cache:false tl.title >>| fun detail ->
     Proto.{ title = tl.title; detail }
@@ -25,8 +25,8 @@ let diff_last_release (a1: Proto.title_full list) (a2: Proto.title_full list) =
 
 
 let update_outdated (titles: Proto.title_full list) =
-  let maybe_expired =
-    List.filter titles ~f:(fun tl -> not (Proto.is_completed tl.detail))
-    |> select_expired in
-  force_fetch_details maybe_expired >>| fun fetched ->
-  diff_last_release maybe_expired fetched
+  let expired_local =
+    List.filter titles ~f:(fun tl -> not (Proto.Title.is_completed tl.detail))
+    |> select_has_release in
+  map_fetch_detail expired_local >>| fun fetched ->
+  diff_last_release expired_local fetched
