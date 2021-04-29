@@ -7,6 +7,14 @@ exception Api_pb_error of Proto.Mangaplus_types.error_result [@@ deriving sexp]
 exception Api_http_error of string
 
 
+let request_get_exn uri =
+  Client.get (Uri.of_string uri) >>= fun (resp, body) ->
+  let status_code = Response.status resp in
+  if Cohttp.Code.is_success (Cohttp.Code.code_of_status status_code) then
+    Body.to_string body
+  else
+    raise (Api_http_error (Cohttp.Code.string_of_status status_code))
+
 (* TODO
   when fetching all the images at once
 ("unhandled exception"
@@ -18,17 +26,20 @@ exception Api_http_error of string
    ((pid 11483) (thread_id 0)))))
   retry 3 times?
  *)
-let request_get_exn uri =
-  Client.get (Uri.of_string uri) >>= fun (resp, body) ->
-  let status_code = Response.status resp in
-  if Cohttp.Code.is_success (Cohttp.Code.code_of_status status_code) then
-    Body.to_string body
-  else
-    raise (Api_http_error (Cohttp.Code.string_of_status status_code))
+(* TODO: First batch of requests always timeout?? *)
+let rec get_retry_timeouts uri retries =
+  Async.try_with ~extract_exn:true (fun () -> request_get_exn uri) >>= function
+  | Ok resp -> Async.return resp
+  | Error exn -> match exn with
+    | Api_http_error _ -> raise exn
+    | _ ->
+      (* TOFIX: retries on everything, not just timeout *)
+      Out_channel.printf "[%i] %s %s\n" retries (Exn.to_string_mach exn) uri;
+      get_retry_timeouts uri (retries - 1)
 
 
-let make_request_pb uri =
-  request_get_exn uri >>| fun body ->
+let make_request_pb ?(retries=0) uri =
+  get_retry_timeouts uri retries >>| fun body ->
   let decoder = Pbrt.Decoder.of_string body in
   Proto.Mangaplus_pb.decode_response decoder
 
@@ -76,7 +87,7 @@ let fetch_all ?(use_cache=true) () =
 let detail_uri (title: Proto.title) =
   Printf.sprintf "https://jumpg-webapi.tokyo-cdn.com/api/title_detail?title_id=%i" title.title_id
   
-let request_detail title = make_request_pb (detail_uri title)
+let request_detail title = make_request_pb ~retries:2 (detail_uri title)
 
 let unwrap_detail_exn response =
   match (unwrap_response_exn response).view with
@@ -98,6 +109,6 @@ let fetch_image ?(use_cache=true) (title: Proto.title) =
   load_cache_or_fetch use_cache
   ~cache: (fun () -> Cache.get_image_file title)
   ~fetch: (fun () ->
-    request_get_exn title.landscape_image_url >>| fun body ->
+    get_retry_timeouts title.landscape_image_url 2 >>| fun body ->
     Cache.save_image title ~data:body
   )

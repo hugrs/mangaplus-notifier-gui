@@ -21,10 +21,11 @@ let load_all_titles () =
 
 
 let filename_detail id =
-  cache_path (Printf.sprintf "detail_%i.cache" id)
+  cache_path @@ Printf.sprintf "detail_%i.cache" id
 
 let save_title_detail (title: Proto.title) view =
-  Fs.save_pb ~encode_f:Mangaplus_pb.encode_title_detail_view ~file:(filename_detail title.title_id) view
+  Fs.save_pb ~encode_f:Mangaplus_pb.encode_title_detail_view 
+    ~file:(filename_detail title.title_id) view
 
 let load_title_detail (title: Proto.title) =
   Fs.if_exists (filename_detail title.title_id) ~f:(fun file ->
@@ -33,7 +34,7 @@ let load_title_detail (title: Proto.title) =
 
 
 let filename_image id =
-  cache_path (Printf.sprintf "img_%i.jpeg" id)
+  cache_path @@ Printf.sprintf "img_%i.jpeg" id
 
 let save_image (title: Proto.title) ~data =
   let filename = filename_image title.title_id in

@@ -47,3 +47,8 @@ let describe_last_chapter title =
 
 let make_notification_body titles =
   List.map titles ~f:describe_last_chapter
+
+let chapter_url (chapter: Proto.Mangaplus_types.chapter) =
+  sprintf "https://mangaplus.shueisha.co.jp/viewer/%i" chapter.chapter_id
+
+let last_chapter_url detail = last_chapter detail |> chapter_url

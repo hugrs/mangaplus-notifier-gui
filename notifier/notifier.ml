@@ -1,11 +1,7 @@
 let notify_async ~summary ~body () =
   Async.In_thread.run (fun () ->
     Lwt_main.run begin
-      let%lwt _ = Notification.notify
-        ~app_name:"this app"
-        ~summary
-        ~body
-        () in
+      let%lwt _ = Notification.notify ~summary ~body () in
       Lwt.return_unit
     end
   )

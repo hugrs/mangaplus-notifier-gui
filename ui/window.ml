@@ -23,14 +23,9 @@ let create ~titles () =
   let grid = Grid.create titles ~packing:(fun w -> stack#add_titled w "titles" "Manga list") in
 
   Grid.connect_entries `clicked grid (fun title selected ->
-    Out_channel.print_endline title.name;
-    Out_channel.print_endline (Bool.to_string selected);
     Listview.set_selected list_view title selected
   );
-
-  Listview.connect_entry_clicked list_view (fun url ->
-    GWindow.show_uri url
-  );
+  Listview.connect_entry_clicked list_view GWindow.show_uri;
 
   let saved_selection = Lib.Prefs.load_selected () in
   Grid.set_selection grid saved_selection |> ignore;

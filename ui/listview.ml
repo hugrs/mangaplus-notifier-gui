@@ -20,8 +20,6 @@ let url = cols#add Gobject.Data.string
 let visible = cols#add Gobject.Data.boolean
 let bgcolor = cols#add Gobject.Data.string
 
-let yellow = "#f9ff7c"
-
 
 module Row = struct
   type t = {
@@ -32,7 +30,11 @@ module Row = struct
   let set_release_dates ~(store:store_t) row (detail_view: Proto.title_detail) =
     let chapter = Data.last_chapter detail_view in
     store#set ~row ~column:last_chapter chapter.name;
-    store#set ~row ~column:last_date (Dateformat.epoch_to_human_string chapter.start_time_stamp);
+    let last_date_str = Printf.sprintf "%s (%s)"
+      (Dateformat.Date_relative.of_epoch_from_today chapter.start_time_stamp
+        ~lang: Dateformat.Date_relative.french)
+      (Dateformat.epoch_to_human_string chapter.start_time_stamp) in
+    store#set ~row ~column:last_date last_date_str;
     store#set ~row ~column:next_date (match detail_view.next_timestamp with
       | 0 -> "-"
       | _ -> Dateformat.epoch_to_human_string detail_view.next_timestamp)  
@@ -42,11 +44,11 @@ module Row = struct
     (* set fields that won't change upon refresh *)
     store#set ~row ~column:name title.name; 
     store#set ~row ~column:author title.author;
-    store#set ~row ~column:url (Api.webpage_uri title);
     (* store#set ~row ~column:bgcolor "#888888"; *)
-    (* fill details when we have it *)
+    (* fill detail when we have it *)
     Async.upon (Api.fetch_detail title) (fun detail ->
-      set_release_dates ~store:store row detail
+      set_release_dates ~store:store row detail;
+      store#set ~row ~column:url (Data.last_chapter_url detail);
     );
     { data = row }
 
@@ -92,7 +94,7 @@ let create ~packing =
 let connect_entry_clicked t callback =
   let view, store = t.view, t.store in
   (* FIXME: path doesnt reflect the correct row if the rows have changed
-    I think i'm supposed to delete/add the rows instead of hiding *)
+    I think i'm supposed to delete/add the rows instead of hiding them *)
   view#connect#row_activated <~ (fun path _column ->
     let row = store#get_iter path in
     let uri = store#get ~row ~column:url in
@@ -103,7 +105,7 @@ let connect_entry_clicked t callback =
 let set_selected t (title: Proto.title) selected =
   let store = t.store in
   let row = Hashtbl.find_or_add t.table title.title_id
-    ~default:(fun () -> Row.create ~store title ) in
+    ~default:(fun () -> Row.create ~store title) in
   store#set ~row:row.data ~column:visible selected
 
 let update_selection t ~all_titles selection_ids =
@@ -111,7 +113,9 @@ let update_selection t ~all_titles selection_ids =
   Data.titles_of_ids ~all_titles selection_ids
   |> List.iter ~f:(fun tl -> set_selected t tl true)
 
-let refresh t (selection: Proto.title list) =
+let yellow = "#f9ff7c"
+
+let refresh t selection =
   Data.TitleFull.of_titles selection >>= fun titles ->
   Updater.update_outdated titles >>= fun updated ->
   List.iter updated ~f:(fun (tf:Proto.title_full) ->
