@@ -1,0 +1,3 @@
+[submodule "lablgtk"]
+	path = lablgtk
+	url = https://github.com/swarmpan/lablgtk
