@@ -35,6 +35,7 @@ let rec get_retry_timeouts uri retries =
     | _ ->
       (* TOFIX: retries on everything, not just timeout *)
       Out_channel.printf "[%i] %s %s\n" retries (Exn.to_string_mach exn) uri;
+      Out_channel.flush stdout;
       get_retry_timeouts uri (retries - 1)
 
 

@@ -3,14 +3,13 @@ module Mangaplus_pp = Mangaplus_pp
 module Mangaplus_types = Mangaplus_types
 
 module Title = struct
-  let is_english (title : Mangaplus_types.title) =
-    title.language = English
-  
-  let is_spanish (title : Mangaplus_types.title) =
-    title.language = Spanish
-  
-  let is_completed (detail : Mangaplus_types.title_detail_view) =
-    detail.next_timestamp = 0
+  open Mangaplus_types
+
+  let is_english t = t.language = English
+  let is_spanish t = t.language = Spanish
+  let id (t:title) = t.title_id
+
+  let is_completed detail = detail.next_timestamp = 0
 end
 
 type title = Mangaplus_types.title [@@ deriving sexp]

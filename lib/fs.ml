@@ -1,6 +1,6 @@
 open Core
 
-let global_root = "mgp"
+let global_root = Filename.concat (Sys.home_directory ()) ".cache/mgp"
 
 let dir_exists dir =
   match Sys.is_directory dir with
@@ -37,7 +37,7 @@ let read_bytes ?(expected_size=4096) chan =
 let read_all_bytes file =
   In_channel.with_file ~binary:true file ~f:read_bytes
 
-let if_exists file ~f =
+let if_exists_do file ~f =
   match Sys.file_exists file with
   | `No | `Unknown -> None
   | `Yes -> Some (f file)

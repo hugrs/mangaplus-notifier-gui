@@ -27,9 +27,10 @@ module Row = struct
   }
   type store_t = GTree.list_store
 
-  let set_release_dates ~(store:store_t) row (detail_view: Proto.title_detail) =
+  let set_last_release_info ~(store:store_t) row (detail_view: Proto.title_detail) =
     let chapter = Data.last_chapter detail_view in
     store#set ~row ~column:last_chapter chapter.name;
+    store#set ~row ~column:url (Data.chapter_url chapter);
     let last_date_str = Printf.sprintf "%s (%s)"
       (Dateformat.Date_relative.of_epoch_from_today chapter.start_time_stamp
         ~lang: Dateformat.Date_relative.french)
@@ -47,13 +48,12 @@ module Row = struct
     (* store#set ~row ~column:bgcolor "#888888"; *)
     (* fill detail when we have it *)
     Async.upon (Api.fetch_detail title) (fun detail ->
-      set_release_dates ~store:store row detail;
-      store#set ~row ~column:url (Data.last_chapter_url detail);
+      set_last_release_info ~store:store row detail;
     );
     { data = row }
 
   let update ~(store:store_t) t (detail: Proto.title_detail) =
-    set_release_dates ~store t.data detail
+    set_last_release_info ~store t.data detail
 
   let set ~(store:store_t) row column value =
     store#set ~row ~column value

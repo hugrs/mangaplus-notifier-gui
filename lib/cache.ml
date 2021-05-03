@@ -14,7 +14,7 @@ let save_all_titles titles =
     ~file:filename_title { titles }
 
 let load_all_titles () =
-  Fs.if_exists filename_title ~f:(fun file ->
+  Fs.if_exists_do filename_title ~f:(fun file ->
     let all_title_view = Fs.load_pb ~decode_f:Mangaplus_pb.decode_all_titles_view file in
     all_title_view.titles
   )
@@ -28,7 +28,7 @@ let save_title_detail (title: Proto.title) view =
     ~file:(filename_detail title.title_id) view
 
 let load_title_detail (title: Proto.title) =
-  Fs.if_exists (filename_detail title.title_id) ~f:(fun file ->
+  Fs.if_exists_do (filename_detail title.title_id) ~f:(fun file ->
     Fs.load_pb ~decode_f:Mangaplus_pb.decode_title_detail_view file
   )
 
@@ -42,4 +42,4 @@ let save_image (title: Proto.title) ~data =
   filename
 
 let get_image_file (title: Proto.title) =
-  Fs.if_exists (filename_image title.title_id) ~f:ident
+  Fs.if_exists_do (filename_image title.title_id) ~f:ident
