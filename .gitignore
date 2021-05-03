@@ -28,10 +28,11 @@ setup.log
 # Local OPAM switch
 _opam/
 
-# VS code
+# VScode
 .vscode/
 .ccls-cache/
 
-# App specific ignore
+# project specific ignore
 cache/
 selected.conf
+reverse/
