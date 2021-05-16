@@ -1,4 +1,7 @@
-## Screenshots
+Select series to follow:
 
-![Screenshot of subscriptions](./doc/screenshot1.png)
-![Screenshot of manga list](./doc/screenshot2.png)
+![Screenshot of manga list](./doc/screenshot4.png)
+
+Get notified when a new chapter releases:
+
+![Screenshot of subscriptions](./doc/screenshot3.png)
