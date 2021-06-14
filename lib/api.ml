@@ -31,7 +31,7 @@ let rec get_retry_timeouts uri retries =
   Async.try_with ~extract_exn:true (fun () -> request_get_exn uri) >>= function
   | Ok resp -> Async.return resp
   | Error exn -> match exn with
-    | Api_http_error _ -> raise exn
+    | Api_http_error _ | _ when retries = 0 -> raise exn
     | _ ->
       (* TOFIX: retries on everything, not just timeout *)
       Out_channel.printf "[%i] %s %s\n" retries (Exn.to_string_mach exn) uri;
