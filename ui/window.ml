@@ -35,8 +35,15 @@ let create ~titles () =
     refresh#set_sensitive false;
     refresh#set_label "...";
     let open Async in
-    Grid.selection grid >>> fun selection ->
-    Listview.refresh list_view selection >>> fun () ->
+    (* TODO: add a variant for the stack types if adding a new page to the stack
+      or using the names outside of this file *)
+    begin match stack#visible_child_name with
+    | "home" -> 
+      Grid.selection grid >>= fun selection ->
+      Listview.refresh list_view selection
+    | "titles" -> return (Out_channel.print_endline "refresh titles")
+    | x -> return (Debug.amf [%here] "WARNING: Attempted to refresh an unknown page type: %s" x)
+    end >>> fun () ->
     refresh#set_label "Refresh";
     refresh#set_sensitive true
   );
