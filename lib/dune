@@ -1,4 +1,5 @@
 (library
  (name lib)
  (libraries proto
- cohttp cohttp-async))
+ cohttp cohttp-async)
+ (preprocess (pps ppx_let)))
