@@ -2,3 +2,19 @@
  (name proto)
  (libraries ocaml-protoc core sexplib)
  (preprocess (pps ppx_sexp_conv)))
+
+; Run `dune clean` followed by a `dune build` to recompile the protobuf definitions
+; into .ml files
+(rule
+ (mode (promote (until-clean)))
+ (targets
+  mangaplus_pb.ml
+  mangaplus_pb.mli
+  mangaplus_pp.ml
+  mangaplus_pp.mli
+  mangaplus_types.ml
+  mangaplus_types.mli
+ )
+ (deps mangaplus.proto)
+ (action (run ocaml-protoc -ml_out . -int32_type int_t %{deps}))
+)
