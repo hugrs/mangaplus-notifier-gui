@@ -7,6 +7,11 @@
 type title_language =
   | English 
   | Spanish 
+  | French 
+  | Indonesian 
+  | Portuguese_br 
+  | Russian 
+  | Thai 
 
 type title = {
   title_id : int;

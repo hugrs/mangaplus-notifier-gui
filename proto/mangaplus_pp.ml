@@ -4,6 +4,11 @@ let rec pp_title_language fmt (v:Mangaplus_types.title_language) =
   match v with
   | Mangaplus_types.English -> Format.fprintf fmt "English"
   | Mangaplus_types.Spanish -> Format.fprintf fmt "Spanish"
+  | Mangaplus_types.French -> Format.fprintf fmt "French"
+  | Mangaplus_types.Indonesian -> Format.fprintf fmt "Indonesian"
+  | Mangaplus_types.Portuguese_br -> Format.fprintf fmt "Portuguese_br"
+  | Mangaplus_types.Russian -> Format.fprintf fmt "Russian"
+  | Mangaplus_types.Thai -> Format.fprintf fmt "Thai"
 
 let rec pp_title fmt (v:Mangaplus_types.title) = 
   let pp_i fmt () =

@@ -145,6 +145,11 @@ let rec decode_title_language d =
   match Pbrt.Decoder.int_as_varint d with
   | 0 -> (Mangaplus_types.English:Mangaplus_types.title_language)
   | 1 -> (Mangaplus_types.Spanish:Mangaplus_types.title_language)
+  | 2 -> (Mangaplus_types.French:Mangaplus_types.title_language)
+  | 3 -> (Mangaplus_types.Indonesian:Mangaplus_types.title_language)
+  | 4 -> (Mangaplus_types.Portuguese_br:Mangaplus_types.title_language)
+  | 5 -> (Mangaplus_types.Russian:Mangaplus_types.title_language)
+  | 6 -> (Mangaplus_types.Thai:Mangaplus_types.title_language)
   | _ -> Pbrt.Decoder.malformed_variant "title_language"
 
 let rec decode_title d =
@@ -592,6 +597,11 @@ let rec encode_title_language (v:Mangaplus_types.title_language) encoder =
   match v with
   | Mangaplus_types.English -> Pbrt.Encoder.int_as_varint (0) encoder
   | Mangaplus_types.Spanish -> Pbrt.Encoder.int_as_varint 1 encoder
+  | Mangaplus_types.French -> Pbrt.Encoder.int_as_varint 2 encoder
+  | Mangaplus_types.Indonesian -> Pbrt.Encoder.int_as_varint 3 encoder
+  | Mangaplus_types.Portuguese_br -> Pbrt.Encoder.int_as_varint 4 encoder
+  | Mangaplus_types.Russian -> Pbrt.Encoder.int_as_varint 5 encoder
+  | Mangaplus_types.Thai -> Pbrt.Encoder.int_as_varint 6 encoder
 
 let rec encode_title (v:Mangaplus_types.title) encoder = 
   Pbrt.Encoder.key (1, Pbrt.Varint) encoder; 
