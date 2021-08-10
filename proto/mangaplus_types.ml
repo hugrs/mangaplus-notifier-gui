@@ -1,6 +1,5 @@
 [@@@ocaml.warning "-27-30-39"]
 
-open Core
 
 type title_language =
   | English 
@@ -19,7 +18,7 @@ type title = {
   landscape_image_url : string;
   view_count : int;
   language : title_language;
-} [@@ deriving sexp]
+}
 
 type all_titles_view = {
   titles : title list;
@@ -34,7 +33,7 @@ type title_detail_view_update_timing =
   | Friday 
   | Saturday 
   | Sunday 
-  | Day [@@ deriving sexp]
+  | Day 
 
 type chapter = {
   title_id : int;
@@ -46,13 +45,13 @@ type chapter = {
   end_time_stamp : int;
   already_viewed : bool;
   is_vertical_only : bool;
-} [@@ deriving sexp]
+}
 
 type title_detail_view_rating =
   | Allage 
   | Teen 
   | Teenplus 
-  | Mature [@@ deriving sexp]
+  | Mature 
 
 type title_detail_view = {
   title : title option;
@@ -71,7 +70,7 @@ type title_detail_view = {
   rating : title_detail_view_rating;
   chapters_descending : bool;
   number_of_views : int;
-} [@@ deriving sexp]
+}
 
 type title_updated = {
   title : title option;

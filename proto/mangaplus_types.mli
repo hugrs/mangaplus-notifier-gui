@@ -21,7 +21,7 @@ type title = {
   landscape_image_url : string;
   view_count : int;
   language : title_language;
-} [@@ deriving sexp]
+}
 
 type all_titles_view = {
   titles : title list;
@@ -73,7 +73,7 @@ type title_detail_view = {
   rating : title_detail_view_rating;
   chapters_descending : bool;
   number_of_views : int;
-} [@@ deriving sexp]
+}
 
 type title_updated = {
   title : title option;

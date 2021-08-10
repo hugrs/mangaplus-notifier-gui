@@ -12,9 +12,9 @@ module Title = struct
   let is_completed detail = detail.next_timestamp = 0
 end
 
-type title = Mangaplus_types.title [@@ deriving sexp]
-type title_detail = Mangaplus_types.title_detail_view [@@ deriving sexp]
+type title = Mangaplus_types.title
+type title_detail = Mangaplus_types.title_detail_view
 type title_full = {
   title: title;
   detail: title_detail
-} [@@ deriving sexp]
+}
