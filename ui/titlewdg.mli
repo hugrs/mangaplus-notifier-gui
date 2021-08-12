@@ -4,6 +4,8 @@ type event_type = [
   `clicked
 ]
 
+(* callback receives the title that was clicked, and the checkbox state *)
+type click_event_callback = Proto.title -> bool -> unit
 val create : Proto.title -> t
 val coerce : t -> GObj.widget
 val get_data : t -> Proto.title

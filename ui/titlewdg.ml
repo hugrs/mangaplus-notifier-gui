@@ -12,6 +12,7 @@ type t = {
 type event_type = [
   `clicked
 ]
+type click_event_callback = Proto.title -> bool -> unit
 
 let get_data t = t.title
 let coerce t = t.widget#coerce
