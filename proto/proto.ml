@@ -10,6 +10,7 @@ module Title = struct
   let id (t:title) = t.title_id
 
   let is_completed detail = detail.next_timestamp = 0
+  let compare_alpha (t1:title) (t2:title) = String.compare t1.name t2.name
 end
 
 type title = Mangaplus_types.title
