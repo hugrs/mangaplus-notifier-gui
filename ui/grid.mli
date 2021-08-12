@@ -7,7 +7,7 @@ val create :
   packing:(GObj.widget -> unit) -> t
 
 val connect_entries : 
-  Titlewdg.event_type -> t -> (Proto.title -> bool -> unit) -> unit
+  Titlewdg.event_type -> t -> cb:(Proto.title -> bool -> unit) -> unit
 
 val refresh : t -> Proto.title list -> 
   on_click_cb:Titlewdg.click_event_callback -> unit -> unit Async.Deferred.t

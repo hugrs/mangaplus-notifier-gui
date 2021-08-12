@@ -22,10 +22,10 @@ let create ~titles () =
   let list_view = Listview.create ~packing:(fun w -> stack#add_titled w "home" "Subscriptions") in
   let grid = Grid.create titles ~packing:(fun w -> stack#add_titled w "titles" "Manga list") in
 
-  let update_listview_callback title selected =
+  let click_gridcell_callback title selected =
     Listview.set_selected list_view title selected in
 
-  Grid.connect_entries `clicked grid update_listview_callback;
+  Grid.connect_entries `clicked grid ~cb:click_gridcell_callback;
   Listview.connect_entry_clicked list_view GWindow.show_uri;
 
   let saved_selection = Lib.Prefs.load_selected () in
@@ -46,7 +46,7 @@ let create ~titles () =
       Out_channel.print_endline "refresh titles";
       let%bind all_titles = Lib.Api.fetch_all ~use_cache:false () in
       let all_titles_en = List.filter all_titles ~f: Proto.Title.is_english in 
-      Grid.refresh grid all_titles_en ~on_click_cb:update_listview_callback ()
+      Grid.refresh grid all_titles_en ~on_click_cb:click_gridcell_callback ()
     | x -> return (Debug.amf [%here] "WARNING: Attempted to refresh an unknown page type: %s" x)
     end >>> fun () ->
     refresh#set_label "Refresh";
