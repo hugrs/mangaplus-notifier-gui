@@ -56,3 +56,8 @@ let create (title: Proto.title) =
 
   (* let _ = GMisc.label ~text:(String.length title.name |> Int.to_string) ~packing:layout#add() in *)
   { title ; widget = eventbox ; checkbox }
+
+let create_with_listener title callback =
+  let widget = create title in
+  connect widget callback;
+  widget
