@@ -19,21 +19,19 @@ let coerce t = t.widget#coerce
 let selected t = t.checkbox#active
 let set_selected t value = t.checkbox#set_active value
 
-let connect evt callback t =
+let connect t callback =
   let eventbox = t.widget in
   let checkbox = t.checkbox in
-  match evt with
-  | `clicked ->
-    eventbox#event#connect#button_press <~ (fun evt ->
-      (* redirect clicks to the checkbox widget *)
-      let open Poly in
-      if GdkEvent.get_type evt = `BUTTON_PRESS then
-        checkbox#clicked ();
-      false
-    );
-    checkbox#connect#clicked <~ (fun () ->
-      callback t.title checkbox#active
-    )
+  eventbox#event#connect#button_press <~ (fun evt ->
+    (* redirect clicks to the checkbox widget *)
+    let open Poly in
+    if GdkEvent.get_type evt = `BUTTON_PRESS then
+      checkbox#clicked ();
+    false
+  );
+  checkbox#connect#clicked <~ (fun () ->
+    callback t.title checkbox#active
+  )
 
 let create (title: Proto.title) =
   let eventbox = GBin.event_box () in

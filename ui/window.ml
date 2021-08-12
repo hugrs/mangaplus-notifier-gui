@@ -22,9 +22,10 @@ let create ~titles () =
   let list_view = Listview.create ~packing:(fun w -> stack#add_titled w "home" "Subscriptions") in
   let grid = Grid.create titles ~packing:(fun w -> stack#add_titled w "titles" "Manga list") in
 
-  Grid.connect_entries `clicked grid (fun title selected ->
-    Listview.set_selected list_view title selected
-  );
+  let update_listview_callback title selected =
+    Listview.set_selected list_view title selected in
+
+  Grid.connect_entries `clicked grid update_listview_callback;
   Listview.connect_entry_clicked list_view GWindow.show_uri;
 
   let saved_selection = Lib.Prefs.load_selected () in

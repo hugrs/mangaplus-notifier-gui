@@ -9,9 +9,10 @@ type grid = {
 type t = grid
 
 let connect_entries evt_type grid callback =
+  match evt_type with `clicked ->
   Deferred.upon grid.entries (fun titles ->
     List.iter titles ~f:(fun entry ->
-      Titlewdg.connect evt_type callback entry
+        Titlewdg.connect entry callback
     )
   )
 
