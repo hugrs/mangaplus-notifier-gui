@@ -42,7 +42,11 @@ let create ~titles () =
     | "home" -> 
       Grid.selection grid >>= fun selection ->
       Listview.refresh list_view selection
-    | "titles" -> return (Out_channel.print_endline "refresh titles")
+    | "titles" -> 
+      Out_channel.print_endline "refresh titles";
+      let%bind all_titles = Lib.Api.fetch_all ~use_cache:false () in
+      let all_titles_en = List.filter all_titles ~f: Proto.Title.is_english in 
+      Grid.refresh grid all_titles_en ~on_click_cb:update_listview_callback ()
     | x -> return (Debug.amf [%here] "WARNING: Attempted to refresh an unknown page type: %s" x)
     end >>> fun () ->
     refresh#set_label "Refresh";
