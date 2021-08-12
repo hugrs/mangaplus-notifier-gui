@@ -55,7 +55,7 @@ let apply_selection (title_widgets: Titlewdg.t list) selection =
     |> Titlewdg.set_selected wdg
   )
 
-let set_selection grid selection =
+let restore_selection grid selection =
   Deferred.map grid.entries
     ~f:(fun entries -> apply_selection entries selection)
 

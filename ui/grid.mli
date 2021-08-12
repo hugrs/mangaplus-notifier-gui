@@ -9,5 +9,5 @@ val create :
 val connect_entries : 
   Titlewdg.event_type -> t -> (Proto.title -> bool -> unit) -> unit
 
-val set_selection : t -> int list -> unit Async.Deferred.t
+val restore_selection : t -> int list -> unit Async.Deferred.t
 val selection : t -> Proto.title list Async.Deferred.t

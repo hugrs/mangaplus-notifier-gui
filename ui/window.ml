@@ -28,7 +28,7 @@ let create ~titles () =
   Listview.connect_entry_clicked list_view GWindow.show_uri;
 
   let saved_selection = Lib.Prefs.load_selected () in
-  Grid.set_selection grid saved_selection |> ignore;
+  Grid.restore_selection grid saved_selection |> ignore;
   Listview.update_selection list_view ~all_titles:titles saved_selection |> ignore;
 
   refresh#connect#clicked <~ (fun () ->
