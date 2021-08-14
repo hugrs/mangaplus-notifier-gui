@@ -78,8 +78,9 @@ let refresh t fresh_titles ~on_click_cb () =
   let added = Lib.Updater.difference fresh_titles cached_titles in
   Debug.amf [%here] "new titles length: %d" (List.length added);
   if List.length added > 0 then
-    let cached_titles = List.sort cached_titles ~compare:Proto.Title.compare_alpha in
-    let added = List.sort added ~compare:Proto.Title.compare_alpha in
+    (* TODO: fix sorting of new titles *)
+    (* let cached_titles = List.sort cached_titles ~compare:Proto.Title.compare_alpha in
+    let added = List.sort added ~compare:Proto.Title.compare_alpha in *)
     
     (* I believe cached_titles is already sorted alphabetically
       FUTURE: might not be true for all languages *)
@@ -105,4 +106,16 @@ let refresh t fresh_titles ~on_click_cb () =
     t.widget <- new_grid;
     t.entries <- return new_widgets;
     Out_channel.print_endline "grid has been refreshed";
+
+    let summary = List.map added ~f: Proto.Title.name
+      |> String.concat ~sep:"\n" in
+    let message = Printf.sprintf "%d new titles added!\n\n%s"
+      (List.length added)
+      summary in
+    let dialog = GWindow.message_dialog
+      ~buttons: GWindow.Buttons.close
+      ~title: "Notification"
+      ~message
+      ~show:true () in
+    dialog#connect#response ~callback:(fun _ -> dialog#destroy ()) |> ignore;
     ()
