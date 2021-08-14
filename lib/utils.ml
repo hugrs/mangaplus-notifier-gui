@@ -21,3 +21,25 @@ let break_string ~limit str =
   List.map2_exn separators words ~f:String.(^)
   |> String.concat ~sep:""
   |> String.lstrip (* remove dummy space *)
+
+let copy_contents ~src ~dest =
+  let buf = Bytes.create 4096 in
+  let rec iter () =
+    match Unix.read src ~len:4096 ~buf with
+    | 4096 ->
+      let _ = Unix.write ~len:4096 dest ~buf in
+      iter ()
+    | x when x < 4096 ->
+      let _ = Unix.write ~len:x dest ~buf in
+      ()
+    | 0 -> ()
+    | _ -> failwith "Unknown length returned from read" in
+  iter ()
+
+let copy ~src ~dest =
+  let srcfd = Unix.openfile ~mode:[Unix.O_RDONLY] src in
+  let destfd = Unix.openfile ~mode:[Unix.O_WRONLY ; Unix.O_CREAT ; Unix.O_TRUNC] dest in
+  copy_contents ~src:srcfd ~dest:destfd;
+  Unix.close destfd;
+  Unix.close srcfd
+  
