@@ -43,3 +43,8 @@ let save_image (title: Proto.title) ~data =
 
 let get_image_file (title: Proto.title) =
   Fs.if_exists_do (filename_image title.title_id) ~f:ident
+
+
+module Debug = struct
+  let title_cache_path = filename_title
+end

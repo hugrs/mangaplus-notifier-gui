@@ -4,3 +4,7 @@ val save_title_detail : Proto.title -> Proto.title_detail -> unit
 val load_title_detail : Proto.title -> Proto.title_detail option
 val save_image : Proto.title -> data:string -> string
 val get_image_file : Proto.title -> string option
+
+module Debug : sig
+    val title_cache_path : string
+end

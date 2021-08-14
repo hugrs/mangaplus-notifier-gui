@@ -63,7 +63,7 @@ let main_test () =
     test_fetch_detail () ;
     test_unique_ids () ;
     test_detail_exists () ;
-    test_chapters ()
+    (* test_chapters () *) (* disabled by default as this makes a lot of requests *)
   ] >>> fun () -> shutdown 0
 
 let () =
