@@ -1,3 +1,6 @@
 (tests
- (names api_test)
- (libraries lib proto))
+ (names 
+  api_test
+  new_titles_test
+  utils_test)
+ (libraries lib proto ui sha))
