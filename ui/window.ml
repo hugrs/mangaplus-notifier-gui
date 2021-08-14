@@ -22,9 +22,9 @@ let create ~titles () =
   let list_view = Listview.create ~packing:(fun w -> stack#add_titled w "home" "Subscriptions") in
   let grid = Grid.create titles ~packing:(fun w -> stack#add_titled w "titles" "Manga list") in
 
-  let click_gridcell_callback title selected =
-    Listview.set_selected list_view title selected in
-
+  (* setup callbacks for when grid cells are clicked *)
+  let click_gridcell_callback title is_selected =
+    Listview.set_selected_to list_view title is_selected in
   Grid.connect_entries `clicked grid ~cb:click_gridcell_callback;
   Listview.connect_entry_clicked list_view GWindow.show_uri;
 

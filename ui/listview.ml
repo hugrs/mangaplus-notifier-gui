@@ -102,16 +102,18 @@ let connect_entry_clicked t callback =
     callback uri
   )
 
-let set_selected t (title: Proto.title) selected =
+let set_selected_to t (title: Proto.title) selected =
   let store = t.store in
   let row = Hashtbl.find_or_add t.table title.title_id
     ~default:(fun () -> Row.create ~store title) in
   store#set ~row:row.data ~column:visible selected
 
 let update_selection t ~all_titles selection_ids =
-  all_titles >>| fun all_titles ->
-  Data.titles_of_ids ~all_titles selection_ids
-  |> List.iter ~f:(fun tl -> set_selected t tl true)
+  let open Async in
+  let%map all_titles = all_titles in (* <- wait for Deferred *)
+  let selected_titles = Data.titles_of_ids ~all_titles selection_ids in
+  let entry_set_selected_true title = set_selected_to t title true in
+  List.iter selected_titles ~f:entry_set_selected_true
 
 let yellow = "#f9ff7c"
 
