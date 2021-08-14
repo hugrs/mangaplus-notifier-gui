@@ -28,9 +28,12 @@ let create ~titles () =
   Grid.connect_entries `clicked grid ~cb:click_gridcell_callback;
   Listview.connect_entry_clicked list_view GWindow.show_uri;
 
+  let restore_selection ~grid ~list_view selection () =
+    (* restore user selection of titles from the filesystem *)
+    Grid.restore_selection grid selection |> ignore;
+    Listview.update_selection list_view ~all_titles:titles selection |> ignore in
   let saved_selection = Lib.Prefs.load_selected () in
-  Grid.restore_selection grid saved_selection |> ignore;
-  Listview.update_selection list_view ~all_titles:titles saved_selection |> ignore;
+  restore_selection ~grid ~list_view saved_selection ();
 
   refresh#connect#clicked <~ (fun () ->
     refresh#set_sensitive false;

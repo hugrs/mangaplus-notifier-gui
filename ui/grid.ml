@@ -27,9 +27,9 @@ let fill_grid_widget (widget: GPack.grid) titles =
     )
   )
 
-let make_display_widget ?(show=true) ~packing () =
+let make_display_widget ?(show=true) ?packing () =
   GPack.grid ~row_spacings:15 ~col_spacings:10
-    ~border_width:10 ~col_homogeneous:true ~show ~packing ()
+    ~border_width:10 ~col_homogeneous:true ~show ?packing ()
 
 let create (titles_async: Proto.title list Async.Deferred.t) ~packing =
   (* build Gtk layout *)
@@ -51,8 +51,9 @@ let create (titles_async: Proto.title list Async.Deferred.t) ~packing =
   );
   grid
 
-
-(* attention n^2 loop here - max iter is length of titles^2 = 22500 *)
+(* attention n^2 loop here - max iter is length of titles^2 = 22500
+although the selection should usually be small (around 10 titles), the
+average search will be (150*10)/2 *)
 let apply_selection (title_widgets: Titlewdg.t list) selection =
   List.iter title_widgets ~f:(fun wdg ->
     let id = (Titlewdg.get_data wdg).title_id in
@@ -61,40 +62,47 @@ let apply_selection (title_widgets: Titlewdg.t list) selection =
   )
 
 let restore_selection grid selection =
-  Deferred.map grid.entries
-    ~f:(fun entries -> apply_selection entries selection)
+  Debug.amf [%here] "refresh selection...";
+  let%map entries = grid.entries in
+  apply_selection entries selection
 
 let selection grid =
-  Deferred.map grid.entries ~f:(fun entries ->
-    List.filter entries ~f:Titlewdg.selected
-    |> List.map ~f:Titlewdg.get_data
-  )
+  let%map entries = grid.entries in
+  List.filter entries ~f:Titlewdg.selected
+  |> List.map ~f:Titlewdg.get_data
 
 let refresh t fresh_titles ~on_click_cb () =
   (* build new widgets for all titles *)
   let%map entries = t.entries in
   let cached_titles = List.map entries ~f:Titlewdg.get_data in
-  let added = Lib.Updater.diff_keep_only_new cached_titles fresh_titles 
-    |> List.sort ~compare:Proto.Title.compare_alpha in
-  
-  (* we want the final list to be sorted alphabetically. I can think of a few methods:
-  - append new titles at the end and sort everything
-  - knowing that the past list is sorted, sort the new elements and iterate through the
-    original list, inserting the new ones where they fit
-  - a "merge" function that combines 2 lists with a comparator? => Base has List.merge *)
-  let combined_list = List.merge cached_titles added ~compare:Proto.Title.compare_alpha in
-  let new_widgets = List.map combined_list ~f:(fun t -> Titlewdg.create_with_listener t on_click_cb) in
-  t.entries <- return new_widgets;
-  
-  (* destroy the old grid *)
-  t.container#remove t.widget#coerce;
-  t.widget#destroy ();
+  let added = Lib.Updater.difference fresh_titles cached_titles in
+  Debug.amf [%here] "new titles length: %d" (List.length added);
+  if List.length added > 0 then
+    let cached_titles = List.sort cached_titles ~compare:Proto.Title.compare_alpha in
+    let added = List.sort added ~compare:Proto.Title.compare_alpha in
+    
+    (* I believe cached_titles is already sorted alphabetically
+      FUTURE: might not be true for all languages *)
+    let refreshed_list = List.merge cached_titles added ~compare:Proto.Title.compare_alpha in
 
-  (* create the new grid and attach it *)
-  let new_grid = make_display_widget ~packing:t.container#add () in
-  fill_grid_widget new_grid new_widgets;
+    let entries_prev_selected = 
+      List.filter entries ~f: Titlewdg.selected 
+      |> List.map ~f: Titlewdg.get_id in
+    let new_widgets = List.map refreshed_list ~f:(fun t ->
+      let was_selected = List.exists entries_prev_selected ~f:(fun sid -> t.title_id = sid) in
+      Titlewdg.create_with_listener t on_click_cb ~selected:was_selected
+    ) in
+    (* build the new grid in the background *)
+    let new_grid = make_display_widget () in
+    fill_grid_widget new_grid new_widgets;
 
-  (* save a reference *)
-  t.widget <- new_grid;
-  Out_channel.print_endline "grid has been refreshed";
-  ()
+    (* destroy the old grid and attach the new *)
+    t.container#remove t.widget#coerce;
+    t.widget#destroy ();
+    t.container#add new_grid#coerce;
+
+    (* update references *)
+    t.widget <- new_grid;
+    t.entries <- return new_widgets;
+    Out_channel.print_endline "grid has been refreshed";
+    ()

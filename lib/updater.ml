@@ -28,14 +28,16 @@ let diff_last_release a1 a2 =
   |> List.filter_opt
 
 (* returns elements of a2 that are not in a1
-  Expects titles (compares by title id) *)
-let diff_keep_only_new a1 a2 =
+  Expects titles (compares by title id) 
+  O(n log n) complexity
+  O(cn) additional space, c > 2*)
+let difference a1 a2 =
   let ids1 = List.map a1 ~f: Proto.Title.id
   and ids2 = List.map a2 ~f: Proto.Title.id in
   let set1 = Set.of_list (module Int) ids1
   and set2 = Set.of_list (module Int) ids2 in
-  let diffset = Set.diff set2 set1 in
-  List.filter a2 ~f:(fun t -> Set.mem diffset t.title_id)
+  let diffset = Set.diff set1 set2 in
+  List.filter a1 ~f:(fun t -> Set.mem diffset t.title_id)
 
 let update_outdated titles =
   let expired_local = List.filter titles 

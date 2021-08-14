@@ -15,6 +15,7 @@ type event_type = [
 type click_event_callback = Proto.title -> bool -> unit
 
 let get_data t = t.title
+let get_id t = (get_data t).title_id
 let coerce t = t.widget#coerce
 let selected t = t.checkbox#active
 let set_selected t value = t.checkbox#set_active value
@@ -55,7 +56,8 @@ let create (title: Proto.title) =
   (* let _ = GMisc.label ~text:(String.length title.name |> Int.to_string) ~packing:layout#add() in *)
   { title ; widget = eventbox ; checkbox }
 
-let create_with_listener title callback =
+let create_with_listener title callback ~selected =
   let widget = create title in
   connect widget callback;
+  set_selected widget selected;
   widget
