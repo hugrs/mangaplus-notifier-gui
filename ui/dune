@@ -1,4 +1,4 @@
-(executable
- (name main)
+(library
+ (name ui)
  (libraries lib notifier lablgtk3)
  (preprocess (pps ppx_here ppx_let)))
