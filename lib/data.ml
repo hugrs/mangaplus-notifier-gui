@@ -19,6 +19,7 @@ let titles_of_ids ~(all_titles:Proto.title list) ids =
   List.map ids ~f:(Map.find map)
   |> List.filter_opt
 
+let ids_of_titles titles = List.map titles ~f:Proto.Title.id
 
 module TitleFull = struct
   type t = Proto.title_full

@@ -12,6 +12,8 @@ val title_detail_of_ids :
   all_titles:Proto.title list -> int list ->
   Proto.title_full list Async.Deferred.t
 
+val ids_of_titles : Proto.title list -> int list
+
 val last_chapter : Proto.title_detail -> Proto.Mangaplus_types.chapter
 val chapter_url : Proto.Mangaplus_types.chapter -> string
 
