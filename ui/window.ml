@@ -2,6 +2,7 @@ open Core
 open Helper
 
 let create ~titles () =
+  (* ui setup *)
   let window = GWindow.window ~title:"Main window" ~height:650 () in
   let root_layout = GPack.box `VERTICAL ~spacing:10 ~homogeneous:false ~packing:window#add () in
   
@@ -19,6 +20,7 @@ let create ~titles () =
   root_layout#pack ~expand:false header#coerce;
   root_layout#pack ~expand:true ~fill:true stack#coerce;
   
+  (* the main views *)
   let list_view = Listview.create ~packing:(fun w -> stack#add_titled w "home" "Subscriptions") in
   let grid = Grid.create titles ~packing:(fun w -> stack#add_titled w "titles" "Manga list") in
 
@@ -35,23 +37,26 @@ let create ~titles () =
   let saved_selection = Lib.Prefs.load_selected () in
   restore_selection ~grid ~list_view saved_selection ();
 
+  (* refresh button *)
   refresh#connect#clicked <~ (fun () ->
     refresh#set_sensitive false;
     refresh#set_label "...";
-    let open Async in
-    (* TODO: add a variant for the stack types if adding a new page to the stack
+    (* FUTURE: add a variant for the stack types if adding a new page to the stack
       or using the names outside of this file *)
-    begin match stack#visible_child_name with
-    | "home" -> 
-      Grid.selection grid >>= fun selection ->
-      Listview.refresh list_view selection
-    | "titles" -> 
-      Out_channel.print_endline "refresh titles";
-      let%bind all_titles = Lib.Api.fetch_all ~use_cache:false () in
-      let all_titles_en = List.filter all_titles ~f: Proto.Title.is_english in 
-      Grid.refresh grid all_titles_en ~on_click_cb:click_gridcell_callback ()
-    | x -> return (Debug.amf [%here] "WARNING: Attempted to refresh an unknown page type: %s" x)
+    let open Async in
+    begin
+      match stack#visible_child_name with
+      | "home" -> 
+        let%bind selection = Grid.selection grid in
+        Listview.refresh list_view selection
+      | "titles" -> 
+        Debug.amf [%here] "refresh titles";
+        let%bind all_titles = Lib.Api.fetch_all ~use_cache:false () in
+        let all_titles_en = List.filter all_titles ~f: Proto.Title.is_english in 
+        Grid.refresh grid all_titles_en ~on_click_cb:click_gridcell_callback ()
+      | x -> return (Debug.amf [%here] "WARNING: Attempted to refresh an unknown page type: %s" x)
     end >>> fun () ->
+    Debug.amf [%here] "refresh selection done";
     refresh#set_label "Refresh";
     refresh#set_sensitive true
   );

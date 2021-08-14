@@ -73,6 +73,7 @@ let unwrap_all_exn response =
   | All_titles_view view -> view.titles
   | _ -> raise (Api_pb_unexpected "api: title_list/all did not contain a list of titles")
 
+(* successful responses are always saved in cache, regardless of the value of `use_cache` *)
 let fetch_all ?(use_cache=true) () =
   load_cache_or_fetch use_cache
     ~cache: Cache.load_all_titles
