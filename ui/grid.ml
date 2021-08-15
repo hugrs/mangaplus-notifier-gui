@@ -81,10 +81,12 @@ let refresh t fresh_titles ~on_click_cb () =
     (* TODO: fix sorting of new titles *)
     (* let cached_titles = List.sort cached_titles ~compare:Proto.Title.compare_alpha in
     let added = List.sort added ~compare:Proto.Title.compare_alpha in *)
-    
     (* I believe cached_titles is already sorted alphabetically
       FUTURE: might not be true for all languages *)
-    let refreshed_list = List.merge cached_titles added ~compare:Proto.Title.compare_alpha in
+    (* let refreshed_list = List.merge cached_titles added ~compare:Proto.Title.compare_alpha in *)
+    
+    (* Instead of debugging List.merge, let's just add the new titles at the top *)
+    let refreshed_list = List.append added cached_titles in
 
     let entries_prev_selected = 
       List.filter entries ~f: Titlewdg.selected 
