@@ -15,6 +15,7 @@ let create ~titles () =
   switcher#set_halign `CENTER;
 
   header#set_margin 10;
+  switcher#set_margin_right 90; (* center the panel switcher manually *)
   header#set_margin_bottom 0;
 
   root_layout#pack ~expand:false header#coerce;
