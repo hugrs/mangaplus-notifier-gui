@@ -3,7 +3,7 @@ open Helper
 
 let create ~titles () =
   (* ui setup *)
-  let window = GWindow.window ~title:"Main window" ~height:650 () in
+  let window = GWindow.window ~title:"Mangaplus notifier" ~height:650 () in
   let root_layout = GPack.box `VERTICAL ~spacing:10 ~homogeneous:false ~packing:window#add () in
   
   let stack = GPack.stack ~transition_type:`SLIDE_LEFT_RIGHT () in
