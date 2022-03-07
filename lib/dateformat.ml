@@ -52,13 +52,15 @@ module Date_relative = struct
     | Suffix of string
     | Replace of string
   type with_plural = string * plural_type
+  type time_direction = Past | Future
 
   type span_lang = {
     today: string;
     day: with_plural;
     week: with_plural;
     month: with_plural;
-    template: int -> string -> string
+    template_past: int -> string -> string;
+    template_future: int -> string -> string
   }
 
   let french = {
@@ -66,14 +68,16 @@ module Date_relative = struct
     day = ("jour", Suffix "s");
     week = ("semaine", Suffix "s");
     month = ("mois", None);
-    template = fun a s -> Printf.sprintf "il y a %i %s" a s
+    template_past = begin fun a s -> Printf.sprintf "il y a %i %s" a s end;
+    template_future = begin fun a s -> Printf.sprintf "dans %i %s" a s end
   }
   let english = {
     today = "today";
     day = ("day", Suffix "s");
     week = ("week", Suffix "s");
     month = ("month", Suffix "s");
-    template = fun a s -> Printf.sprintf "%i %s ago" a s
+    template_past = begin fun a s -> Printf.sprintf "%i %s ago" a s end;
+    template_future = begin fun a s -> Printf.sprintf "in %i %s" a s end
   }
 
   let pluralize (word, ptype) amount =
@@ -83,9 +87,11 @@ module Date_relative = struct
     | Suffix s -> word ^ s
     | Replace rep -> rep
 
-  let localize dict span =
-    let apply_template plural_info amount = 
-      dict.template amount (pluralize plural_info amount) in
+  let localize dict direction span =
+    let apply_template plural_info amount =
+      match direction with
+      | Past -> dict.template_past amount (pluralize plural_info amount)
+      | Future -> dict.template_future amount (pluralize plural_info amount) in
     match Dayspan.categorize span with
     | Today -> dict.today
     | Days a -> apply_template dict.day a
@@ -93,9 +99,11 @@ module Date_relative = struct
     | Months a -> apply_template dict.month a
   
   let of_dates d1 d2 ~lang:dict =
-    let datediff = Date.diff d1 d2 in
-    let dayspan = Dayspan.decompose datediff in
-    localize dict dayspan
+    let daydiff = Date.diff d2 d1 in
+    let direction = if daydiff >= 0 then Future else Past in
+    let daydiff = Int.abs daydiff in
+    let spaninfo = Dayspan.decompose daydiff in
+    localize dict direction spaninfo
 
   let of_date_from_today date ~lang:dict =
     let today = Date.today ~zone:(Lazy.force Time.Zone.local) in
