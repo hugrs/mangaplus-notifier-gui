@@ -66,20 +66,45 @@ let create ~packing =
   let filter = GTree.model_filter list_store in
   filter#set_visible_column visible;
   let list_view = GTree.view ~model:filter ~packing () in
-
   let renderer = GTree.cell_renderer_text [] in
+
   let create_column title gcol =
     let col = GTree.view_column ~title ~renderer:(renderer, [
       ("text", gcol);
       ("background", bgcolor)
     ]) () in
-    ignore (list_view#append_column col) in
-  
-  create_column "Title" name;
-  create_column "Author" author;
-  create_column "Last chapter" last_chapter;
-  create_column "Last release" last_date;
-  create_column "Next release" next_date;
+    col#set_resizable true;
+    col#set_clickable true;
+    col#connect#clicked <~ (fun () ->
+      let order = match list_store#get_sort_column_id with
+        | Some (_, `ASCENDING) -> `DESCENDING
+        | Some (_, `DESCENDING) -> `ASCENDING
+        | None -> `ASCENDING in
+      list_store#set_sort_column_id gcol.index order);
+    col in
+
+  let create_date_column title gcol =
+    (* Change the render function for date columns, the underlying data is a (string) timestamp, *)
+    (* so convert it to a readable date *)
+    let col = create_column title gcol in
+    col#set_cell_data_func renderer (fun model row ->
+        match model#get ~row ~column:gcol with
+        | "" | "0" -> renderer#set_properties [ `TEXT "-" ]
+        | ts ->
+          let last_date_str = Dateformat.datetime_for_display (Int.of_string ts) in
+          renderer#set_properties [ `TEXT last_date_str ]
+      );
+    col in
+
+  let columns = [
+    create_column "Title" name;
+    create_column "Author" author;
+    create_column "Last chapter" last_chapter;
+    create_date_column "Last release" last_date;
+    create_date_column "Next release" next_date;
+  ] in
+  (* insert all columns with side-effect *)
+  List.iter columns ~f:(fun c -> list_view#append_column c |> ignore);
 
   let table = Hashtbl.create (module Int) in
   { view = list_view; store = list_store ; table }
