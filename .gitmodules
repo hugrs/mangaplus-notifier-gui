@@ -1,3 +1,4 @@
 [submodule "lablgtk"]
 	path = lablgtk
-	url = https://github.com/swarmpan/lablgtk
+	url = https://github.com/swarmpan/lablgtk.git
+	branch = lablgtk3
