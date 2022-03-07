@@ -31,14 +31,8 @@ module Row = struct
     let chapter = Data.last_chapter detail_view in
     store#set ~row ~column:last_chapter chapter.name;
     store#set ~row ~column:url (Data.chapter_url chapter);
-    let last_date_str = Printf.sprintf "%s (%s)"
-      (Dateformat.Date_relative.of_epoch_from_today chapter.start_time_stamp
-        ~lang: Dateformat.Date_relative.french)
-      (Dateformat.epoch_to_human_string chapter.start_time_stamp) in
-    store#set ~row ~column:last_date last_date_str;
-    store#set ~row ~column:next_date (match detail_view.next_timestamp with
-      | 0 -> "-"
-      | _ -> Dateformat.epoch_to_human_string detail_view.next_timestamp)  
+    store#set ~row ~column:last_date (Int.to_string chapter.start_time_stamp);
+    store#set ~row ~column:next_date (Int.to_string detail_view.next_timestamp)
     
   let create ~(store: store_t) (title: Proto.title) =
     let row = store#append () in

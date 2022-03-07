@@ -115,3 +115,10 @@ module Date_relative = struct
   let of_epoch_from_today time ~lang =
     of_date_from_today (date_of_epoch time) ~lang
 end
+
+let datetime_for_display seconds =
+  Printf.sprintf "%s (%s)"
+    (Date_relative.of_epoch_from_today
+       ~lang: Date_relative.french
+       seconds)
+    (epoch_to_human_string seconds)

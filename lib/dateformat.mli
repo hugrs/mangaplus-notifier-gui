@@ -12,3 +12,5 @@ module Date_relative : sig
     val of_epochs : int -> int -> lang:span_lang -> string
     val of_epoch_from_today : int -> lang:span_lang -> string
 end
+
+val datetime_for_display : int -> string
